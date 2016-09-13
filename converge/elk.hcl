@@ -1,6 +1,13 @@
+param "docker-group-user-name" {
+  default = "vagrant"
+}
+
 module "packages.hcl" "packages" {}
 
 module "docker.hcl" "docker" {
+  params = {
+    user-name = "{{param `docker-group-user-name`}}"
+  }
   depends = ["module.packages/task.epel-install"]
 }
 
