@@ -89,7 +89,7 @@ docker.container "elasticsearch-container" {
   ports = ["127.0.0.1:9200:9200"]
   volumes = ["{{param `elasticsearch-data-directory`}}:/usr/share/elasticsearch/data"]
   force = "true"
-  depends = ["task.elasticsearch-data-directory", "docker.image.elasticsearch-image"]
+  depends = ["task.elasticsearch-data-directory"]
 }
 
 docker.image "kibana-image" {
@@ -104,5 +104,4 @@ docker.container "kibana-container" {
   ports = ["5601:5601"]
   links = ["{{lookup `docker.container.elasticsearch-container.Name`}}:elasticsearch"]
   force = "true"
-  depends = ["docker.image.kibana-image", "docker.container.elasticsearch-container"]
 }
