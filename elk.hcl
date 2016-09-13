@@ -13,8 +13,8 @@ param "filebeat-service" {
 }
 
 task "filebeat-install" {
-  check = "yum list installed filebeat"
-  apply = "rpm -ivh https://download.elastic.co/beats/filebeat/filebeat-1.3.0-x86_64.rpm"
+  check   = "yum list installed filebeat"
+  apply   = "rpm -ivh https://download.elastic.co/beats/filebeat/filebeat-1.3.0-x86_64.rpm"
   depends = ["module.docker/task.docker-install"]
 }
 
@@ -38,8 +38,8 @@ EOF
 }
 
 task "filebeat-enable" {
-  check = "systemctl is-enabled {{param `filebeat-service`}}"
-  apply = "systemctl enable {{param `filebeat-service`}}"
+  check   = "systemctl is-enabled {{param `filebeat-service`}}"
+  apply   = "systemctl enable {{param `filebeat-service`}}"
   depends = ["file.content.filebeat-yml"]
 }
 
@@ -60,14 +60,14 @@ EOF
 }
 
 task "filebeat-elasticsearch-template" {
-  check = "[[  \"$(curl 'http://localhost:9200/_template/filebeat' 2>/dev/null)\" != \"{}\" ]] || exit 1"
-  apply = "curl -XPUT 'http://localhost:9200/_template/filebeat' -d@/etc/filebeat/filebeat.template.json 2>/dev/null"
+  check   = "[[  \"$(curl 'http://localhost:9200/_template/filebeat' 2>/dev/null)\" != \"{}\" ]] || exit 1"
+  apply   = "curl -XPUT 'http://localhost:9200/_template/filebeat' -d@/etc/filebeat/filebeat.template.json 2>/dev/null"
   depends = ["task.filebeat-enable", "docker.container.elasticsearch-container", "task.query.elasticsearch-wait"]
 }
 
 task "filebeat-start" {
-  check = "systemctl is-active {{param `filebeat-service`}}"
-  apply = "systemctl start {{param `filebeat-service`}}"
+  check   = "systemctl is-active {{param `filebeat-service`}}"
+  apply   = "systemctl start {{param `filebeat-service`}}"
   depends = ["task.filebeat-enable", "docker.container.elasticsearch-container"]
 }
 
@@ -77,29 +77,29 @@ task "elasticsearch-data-directory" {
 }
 
 docker.image "elasticsearch-image" {
-  name = "elasticsearch"
-  tag = "2.4.0"
+  name    = "elasticsearch"
+  tag     = "2.4.0"
   depends = ["module.docker/task.docker-start"]
 }
 
 docker.container "elasticsearch-container" {
-  name = "elasticsearch"
-  image = "{{lookup `docker.image.elasticsearch-image.name`}}:{{lookup `docker.image.elasticsearch-image.tag`}}"
+  name    = "elasticsearch"
+  image   = "{{lookup `docker.image.elasticsearch-image.name`}}:{{lookup `docker.image.elasticsearch-image.tag`}}"
   command = ["elasticsearch", "-Des.insecure.allow.root=true"]
-  ports = ["127.0.0.1:9200:9200"]
+  ports   = ["127.0.0.1:9200:9200"]
   volumes = ["{{param `elasticsearch-data-directory`}}:/usr/share/elasticsearch/data"]
-  force = "true"
+  force   = "true"
   depends = ["task.elasticsearch-data-directory"]
 }
 
 docker.image "kibana-image" {
-  name = "kibana"
-  tag = "4.6.0"
+  name    = "kibana"
+  tag     = "4.6.0"
   depends = ["module.docker/task.docker-start"]
 }
 
 docker.container "kibana-container" {
-  name = "kibana"
+  name  = "kibana"
   image = "{{lookup `docker.image.kibana-image.name`}}:{{lookup `docker.image.kibana-image.tag`}}"
   ports = ["5601:5601"]
   links = ["{{lookup `docker.container.elasticsearch-container.name`}}:elasticsearch"]

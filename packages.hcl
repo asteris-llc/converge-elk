@@ -4,7 +4,7 @@ task "epel-install" {
 }
 
 task "jq-install" {
-  check = "yum list installed jq"
-  apply = "yum makecache; yum install -y jq"
-  depends = [ "task.epel-install" ]
+  check   = "yum list installed jq"
+  apply   = "yum makecache; yum install -y jq"
+  depends = ["task.epel-install"]
 }
