@@ -84,7 +84,7 @@ docker.image "elasticsearch-image" {
 
 docker.container "elasticsearch-container" {
   name = "elasticsearch"
-  image = "{{lookup `docker.image.elasticsearch-image.Name`}}:{{lookup `docker.image.elasticsearch-image.Tag`}}"
+  image = "{{lookup `docker.image.elasticsearch-image.name`}}:{{lookup `docker.image.elasticsearch-image.tag`}}"
   command = ["elasticsearch", "-Des.insecure.allow.root=true"]
   ports = ["127.0.0.1:9200:9200"]
   volumes = ["{{param `elasticsearch-data-directory`}}:/usr/share/elasticsearch/data"]
@@ -100,8 +100,8 @@ docker.image "kibana-image" {
 
 docker.container "kibana-container" {
   name = "kibana"
-  image = "{{lookup `docker.image.kibana-image.Name`}}:{{lookup `docker.image.kibana-image.Tag`}}"
+  image = "{{lookup `docker.image.kibana-image.name`}}:{{lookup `docker.image.kibana-image.tag`}}"
   ports = ["5601:5601"]
-  links = ["{{lookup `docker.container.elasticsearch-container.Name`}}:elasticsearch"]
+  links = ["{{lookup `docker.container.elasticsearch-container.name`}}:elasticsearch"]
   force = "true"
 }
