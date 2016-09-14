@@ -2,7 +2,7 @@ variable "public_key_path" {
   default = "~/.ssh/id_rsa.pub"
 }
 
-variable "key_name" {
+variable "name" {
   default = "elk-test"
 }
 
@@ -12,10 +12,16 @@ variable "ssh_user_name" {
 
 resource "aws_vpc" "default" {
   cidr_block = "10.0.0.0/16"
+  tags {
+    Name = "${var.name}"
+  }
 }
 
 resource "aws_internet_gateway" "default" {
   vpc_id = "${aws_vpc.default.id}"
+  tags {
+    Name = "${var.name}"
+  }
 }
 
 resource "aws_route" "internet_access" {
@@ -28,12 +34,18 @@ resource "aws_subnet" "default" {
   vpc_id                  = "${aws_vpc.default.id}"
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
+  tags {
+    Name = "${var.name}"
+  }
 }
 
 resource "aws_security_group" "default" {
   name = "default-elk-test"
   description = "default security group for elk-test"
   vpc_id      = "${aws_vpc.default.id}"
+  tags {
+    Name = "${var.name}"
+  }
 
   ingress {
     from_port = 22
@@ -65,7 +77,7 @@ resource "aws_security_group" "default" {
 }
 
 resource "aws_key_pair" "auth" {
-  key_name   = "${var.key_name}"
+  key_name   = "${var.name}"
   public_key = "${file(var.public_key_path)}"
 }
 
@@ -75,6 +87,9 @@ resource "aws_instance" "elk" {
   vpc_security_group_ids = ["${aws_security_group.default.id}"]
   subnet_id = "${aws_subnet.default.id}"
   key_name = "${aws_key_pair.auth.id}"
+  tags {
+    Name = "${var.name}"
+  }
 
   root_block_device {
     delete_on_termination = true
