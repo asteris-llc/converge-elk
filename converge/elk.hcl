@@ -78,9 +78,9 @@ task "filebeat-start" {
   depends = ["task.filebeat-enable", "docker.container.elasticsearch-container"]
 }
 
-task "elasticsearch-data-directory" {
-  check = "test -d {{param `elasticsearch-data-directory`}}"
-  apply = "mkdir -p {{param `elasticsearch-data-directory`}}"
+file.directory "elasticsearch-data-directory" {
+  destination = "{{param `elasticsearch-data-directory`}}"
+  create_all = true
 }
 
 docker.image "elasticsearch-image" {
@@ -96,7 +96,7 @@ docker.container "elasticsearch-container" {
   ports   = ["127.0.0.1:9200:9200"]
   volumes = ["{{param `elasticsearch-data-directory`}}:/usr/share/elasticsearch/data"]
   force   = "true"
-  depends = ["task.elasticsearch-data-directory"]
+  depends = ["file.directory.elasticsearch-data-directory"]
 }
 
 docker.image "kibana-image" {
